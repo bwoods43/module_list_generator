@@ -1,0 +1,40 @@
+<?php
+use Drupal\Core\File\FileSystemInterface;
+
+/**
+ * @file
+ * Primary module hooks for Module list generator module.
+ */
+
+
+/**
+ * Reads a CSV file and converts it into a PHP array.
+ *
+ * @param string $uri
+ *   The URI or path to the CSV file (e.g., 'public://data.csv').
+ *
+ * @return array
+ *   An associative array of the CSV rows.
+ */
+function module_list_generator_read_csv_to_array($uri) {
+  /** @var \Drupal\Core\File\FileSystemInterface $file_system */
+  $file_system = \Drupal::service('file_system');
+  
+  // Resolve the real path of the file (handles public:// or private:// wrappers)
+  $real_path = $file_system->realpath($uri);
+  
+  $data = [];
+  
+  if ($real_path && file_exists($real_path)) {
+    if (($handle = fopen($real_path, 'r')) !== FALSE) {
+      
+      // Loop through the remaining rows
+      while (($row = fgetcsv($handle, 0, ',')) !== FALSE) {
+        $data[] = reset($row);
+      }
+      fclose($handle); // Close the file stream
+    }
+  }
+  
+  return $data;
+}

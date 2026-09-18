@@ -1,0 +1,11 @@
+# module_list_generator.services.yml
+services:
+  module_list_generator.composer_inspector:
+    class: Drupal\module_list_generator\ComposerInspector
+    arguments: ['%app.root%']
+    #arguments: ['~/Sites/predictivebiohub']
+   # arguments: ['@logger.factory'] # Optional: Injecting the core logger service    
+  mlg_drush_commands.commands:
+    class: \Drupal\module_list_generator\Drush\Commands\MlgDrushCommands
+    tags:
+      - { name: drush.command }

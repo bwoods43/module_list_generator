@@ -1,0 +1,5 @@
+name: 'Module list generator'
+type: module
+description: 'Generate a list of available and/or installed modules'
+package: Custom
+core_version_requirement: ^10 || ^11
