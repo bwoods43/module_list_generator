@@ -15,6 +15,7 @@ colorbox
 colorbox_inline
 config_ignore
 config_inspector
+csv_serialization
 ctools
 custom_field
 easy_breadcrumb
