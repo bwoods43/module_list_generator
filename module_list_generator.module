@@ -1,40 +1,37 @@
 <?php
-use Drupal\Core\File\FileSystemInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * @file
  * Primary module hooks for Module list generator module.
  */
 
-
 /**
- * Reads a CSV file and converts it into a PHP array.
+ * Reads a custom block with by label and converts it into a PHP array.
  *
- * @param string $uri
- *   The URI or path to the CSV file (e.g., 'public://data.csv').
+ * @param string $block_label
+ *   Custom block label - currently being used only for 'Module list'
  *
  * @return array
- *   An associative array of the CSV rows.
+ *   An associative array of module ids
  */
-function module_list_generator_read_csv_to_array($uri) {
-  /** @var \Drupal\Core\File\FileSystemInterface $file_system */
-  $file_system = \Drupal::service('file_system');
-  
-  // Resolve the real path of the file (handles public:// or private:// wrappers)
-  $real_path = $file_system->realpath($uri);
-  
-  $data = [];
-  
-  if ($real_path && file_exists($real_path)) {
-    if (($handle = fopen($real_path, 'r')) !== FALSE) {
-      
-      // Loop through the remaining rows
-      while (($row = fgetcsv($handle, 0, ',')) !== FALSE) {
-        $data[] = reset($row);
-      }
-      fclose($handle); // Close the file stream
-    }
-  }
-  
-  return $data;
+function module_list_generator_block_content_to_array($block_label) {
+	$storage = \Drupal::entityTypeManager()->getStorage('block_content');
+
+	$ids = $storage->getQuery()
+  	->condition('info', $block_label)
+  	->accessCheck(TRUE)
+  	->execute();
+
+	$module_list_array = [];
+	if (!empty($ids)) {
+  	$block_content = $storage->load(reset($ids));  
+  	$body_value = $block_content->get('body')->value;
+  	
+  	// Actual block content should contain module ids, separated by lines/spaces, enclosed with paragraph tags (because it's in a regular body field, so we need to clean up that
+		$clean = str_replace(["<p>", "</p>"], "", $body_value);
+  	$module_list_array = explode(" ", $clean);
+	}
+	
+	return $module_list_array;
 }
